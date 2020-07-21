@@ -39,11 +39,11 @@ Creating cvcchallenge_kafka_1             ... <font color="#4E9A06">done</font>
 # Second statement
 <p> After finish the containers installations </p>
 <p> Access the Micro Service  <b> cvcconsumer </b>  run <b> mvn clean install </b> </p>
-<p>after  run  <b> docker build -t cvc/consumer  .  </b>  The micro service will start, on port 8084, so that it can be heard by the fallback api </p>
+<p>after  run  <b> docker build -t cvc/consumer  .   or in case of container failure:   mvn spring-boot:run </b>  The micro service will start, on port 8084, so that it can be heard by the fallback api </p>
   
 # Third statement
 <p> Access the API   <b> cvctest </b> run <b> mvn clean install </b> </p>
-<p> after run  <b> docker build -t cvc/cvctest  .  </b>  The API  will start, on port 8080 </p>
+<p> after run  <b> docker build -t cvc/cvctest  .  or in case of container failure:   mvn spring-boot:run </b>  The API  will start, on port 8080 </p>
 <p> Access the Swagger <b> http://localhost:8080/swagger-ui.html </b> </p>  
   
 
