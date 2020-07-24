@@ -6,6 +6,7 @@ import br.com.cvc.repository.CVCRepository;
 import br.com.cvc.service.ReservationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -13,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -24,13 +24,20 @@ public class DefaultReservationImpl implements ReservationService {
     @Autowired
     private ReactiveMongoTemplate reactiveMongoTemplate;
 
+    @Value("${duration.one}")
+    private Long durationCalledOne;
+    @Value("${duration.two}")
+    private Long durationCalledTwo;
+    @Value("${duration.three}")
+    private Long durationCalledThree;
+
     @Override
     public Flux<ReservationBuilder> getHotelById(String id) {
 
         return cvcRepository.findByHotelId(id).map(r -> {
             ReservationBuilder reservationBuilder = new ReservationBuilder(r);
             return reservationBuilder;
-        }).log().take(1000);
+        }).log().cache().take(durationCalledOne);
     }
 
     @Override
@@ -47,7 +54,7 @@ public class DefaultReservationImpl implements ReservationService {
         return cvcRepository.findAll().map(r -> {
             ReservationBuilder reservationBuilder = new ReservationBuilder(r);
             return reservationBuilder;
-        }).collectList().log().take(Duration.ofSeconds(1000));
+        }).collectList().log().cache().take(Duration.ofSeconds(durationCalledTwo));
     }
 
     @Override
@@ -55,6 +62,6 @@ public class DefaultReservationImpl implements ReservationService {
         return cvcRepository.findHotelByCity(code).log().map(r -> {
             ReservationBuilder reservationBuilder = new ReservationBuilder(r);
             return reservationBuilder;
-        }).take(1000);
+        }).cache().take(durationCalledThree );
     }
 }
