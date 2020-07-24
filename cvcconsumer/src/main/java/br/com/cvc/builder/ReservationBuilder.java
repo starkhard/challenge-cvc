@@ -17,6 +17,7 @@ public class ReservationBuilder implements Serializable {
 
     private String id;
     private String city;
+    private String cityCode;
     private Set<RoomsBuilder> rooms;
     private BigDecimal totalPrice;
     private PriceBuilder priceDetails;
@@ -26,6 +27,7 @@ public class ReservationBuilder implements Serializable {
     public ReservationBuilder (ReservationModel reservationModel){
         this.id = reservationModel.getHotelId();
         this.city = reservationModel.getCity();
+        this.cityCode = reservationModel.getCityCode();
         this.totalPrice = reservationModel.getTotalPrice();
         this.rooms =
         reservationModel.getRooms().stream().map(r -> {

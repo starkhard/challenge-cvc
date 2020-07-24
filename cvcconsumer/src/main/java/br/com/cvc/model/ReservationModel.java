@@ -19,6 +19,8 @@ public class ReservationModel  {
     @Indexed(unique = true)
     private String hotelId;
     private String city;
+    @Indexed(unique =  true)
+    private String cityCode;
     private Set<Rooms> rooms;
     private BigDecimal totalPrice;
     private PriceModel priceDetails;

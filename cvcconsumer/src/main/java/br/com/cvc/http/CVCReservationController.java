@@ -19,13 +19,18 @@ public class CVCReservationController {
     @Autowired
     private DefaultReservationImpl defaultReservation;
 
-    @GetMapping("/all")
+    @GetMapping("/allHotels")
     public Mono<List<ReservationBuilder>> findAllHotels(){
         return defaultReservation.getAllHotels();
     }
 
+    @GetMapping("/allHotelsByCityId/{id}")
+    public Flux<ReservationBuilder> findAllHotelsByCity(@PathVariable String id){
+        return defaultReservation.getAllHotelsByCityId(id);
+    }
+
     @GetMapping("/hotelId/{id}")
     public Flux<ReservationBuilder> findHotelById(@PathVariable String id){
-        return defaultReservation.findById(id);
+        return defaultReservation.getHotelById(id);
     }
 }

@@ -11,4 +11,7 @@ public interface CVCRepository extends ReactiveMongoRepository<ReservationModel,
 
     @Query("{'hotelId': ?0}")
     Flux<ReservationModel> findByHotelId(String hotelId);
+
+    @Query("{'cityCode': ?0}")
+    Flux<ReservationModel> findHotelByCity(String cityCode);
 }

@@ -9,4 +9,6 @@ import java.util.List;
 public interface CVCConverterKafkaProducer {
 
     List<ReservationBuilder> converter(List<HotelDTO> hotelDTOS, CVCReservationDTO cvcReservationDTO);
+
+    List<ReservationBuilder> reverseConverter(List<ReservationBuilder> reservations, CVCReservationDTO cvcReservationDTO);
 }

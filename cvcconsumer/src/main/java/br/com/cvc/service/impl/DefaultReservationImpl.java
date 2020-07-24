@@ -7,14 +7,13 @@ import br.com.cvc.service.ReservationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -26,12 +25,12 @@ public class DefaultReservationImpl implements ReservationService {
     private ReactiveMongoTemplate reactiveMongoTemplate;
 
     @Override
-    public Flux<ReservationBuilder> findById(String id) {
+    public Flux<ReservationBuilder> getHotelById(String id) {
 
         return cvcRepository.findByHotelId(id).map(r -> {
             ReservationBuilder reservationBuilder = new ReservationBuilder(r);
             return reservationBuilder;
-        }).take(Duration.ofSeconds(15000));
+        }).log().take(1000);
     }
 
     @Override
@@ -39,7 +38,7 @@ public class DefaultReservationImpl implements ReservationService {
         try {
             cvcRepository.save(data).subscribe();
         } catch (Exception cause) {
-            log.error("problem to save " + cause);
+            log.error("problem to save [cvc-01]" + cause);
         }
     }
 
@@ -48,6 +47,14 @@ public class DefaultReservationImpl implements ReservationService {
         return cvcRepository.findAll().map(r -> {
             ReservationBuilder reservationBuilder = new ReservationBuilder(r);
             return reservationBuilder;
-        }).collectList().take(Duration.ofSeconds(15000));
+        }).collectList().log().take(Duration.ofSeconds(1000));
+    }
+
+    @Override
+    public Flux<ReservationBuilder> getAllHotelsByCityId(String code) {
+        return cvcRepository.findHotelByCity(code).log().map(r -> {
+            ReservationBuilder reservationBuilder = new ReservationBuilder(r);
+            return reservationBuilder;
+        }).take(1000);
     }
 }

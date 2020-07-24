@@ -1,35 +1,31 @@
-package br.com.cvc.kafka;
+package br.com.cvc.converter.impl;
 
-
-import br.com.cvc.builder.ReservationBuilder;
 import br.com.cvc.builder.Reservations;
+import br.com.cvc.converter.CVCConveterReservation;
 import br.com.cvc.model.PriceModel;
 import br.com.cvc.model.ReservationModel;
 import br.com.cvc.model.Rooms;
 import br.com.cvc.service.impl.DefaultReservationImpl;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
-@Slf4j
-public class KafkaListener {
+public class DefaultCVCConverterReservation implements CVCConveterReservation {
 
     @Autowired
     private DefaultReservationImpl defaultReservation;
 
-    @org.springframework.kafka.annotation.KafkaListener(topics = "${cvc.topic.name}", groupId = "${cvc.topic.name}")
-    public void kafkaListener(Reservations reservationBuilders) {
+    @Override
+    public void converter(Reservations reservations) {
 
-        reservationBuilders.getReservationBuilders().forEach(data ->{
+        reservations.getReservationBuilders().forEach(data -> {
 
             ReservationModel reservationModel = new ReservationModel();
             reservationModel.setHotelId(data.getId());
             reservationModel.setCity(data.getCity());
+            reservationModel.setCityCode(data.getCityCode());
             reservationModel.setTotalPrice(data.getTotalPrice());
 
             PriceModel priceModel = new PriceModel();
@@ -48,5 +44,3 @@ public class KafkaListener {
         });
     }
 }
-
-

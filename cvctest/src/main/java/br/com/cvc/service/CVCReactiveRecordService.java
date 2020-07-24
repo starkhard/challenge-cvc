@@ -10,8 +10,12 @@ import java.util.List;
 @FeignClient(name = "${cvc.api.reactive.name}", url = "${cvc.uri.reactive}")
 public interface CVCReactiveRecordService {
 
-    @GetMapping("/all")
+    @GetMapping("/allHotels")
     List<ReservationBuilder> getAllHotelsFallback();
+
+    @GetMapping("/allHotelsByCityId/{id}")
+    List<ReservationBuilder> getAllHotelsByIdFallback(@PathVariable String id);
+
 
     @GetMapping("/hotelId/{id}")
     List<ReservationBuilder> getHotelByIdFallback(@PathVariable String id);

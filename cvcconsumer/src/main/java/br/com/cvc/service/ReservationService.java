@@ -9,9 +9,13 @@ import java.util.List;
 
 public interface ReservationService {
 
-    Flux<ReservationBuilder> findById(String id);
+    Flux<ReservationBuilder> getHotelById(String id);
 
     void createReservation(ReservationModel data);
 
     Mono<List<ReservationBuilder>> getAllHotels();
+
+    Flux<ReservationBuilder> getAllHotelsByCityId(String id);
+
+
 }

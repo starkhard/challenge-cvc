@@ -9,8 +9,8 @@ import java.util.Set;
 
 @Data
 @Builder
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
 @JsonAutoDetect(
         fieldVisibility = JsonAutoDetect.Visibility.ANY,
         creatorVisibility = JsonAutoDetect.Visibility.ANY
@@ -21,6 +21,7 @@ public class ReservationBuilder implements Serializable {
 
     private String id;
     private String city;
+    private String cityCode;
     private Set<RoomsBuilder> rooms;
     private BigDecimal totalPrice;
     private PriceBuilder priceDetails;

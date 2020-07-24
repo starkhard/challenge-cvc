@@ -36,6 +36,7 @@ public class DefaultCVCConverterKafkaProducer implements CVCConverterKafkaProduc
                     ReservationBuilder reservationBuilder = ReservationBuilder.builder()
                             .id(response.getId())
                             .city(response.getCityName())
+                            .cityCode(response.getCityCode())
                             .rooms(response.getRooms().stream().map(r -> {
                                 RoomsBuilder roomsBuilder = RoomsBuilder.builder()
                                         .id(r.getRoomID())
@@ -59,8 +60,36 @@ public class DefaultCVCConverterKafkaProducer implements CVCConverterKafkaProduc
 
         reservations.setReservationBuilders(reservationBuilders);
         kafkaProducer.sent(topic, reservations);
+        return reservationBuilders;
+    }
+
+    public List<ReservationBuilder> reverseConverter( List<ReservationBuilder> reservations, CVCReservationDTO cvcReservationDTO) {
+
+        Reservations reservation = new Reservations();
+
+        List<ReservationBuilder> reservationBuilders = reservations.stream()
+                .map(response -> {
+                    ReservationBuilder reservationBuilder = ReservationBuilder.builder()
+                            .id(response.getId())
+                            .city(response.getCity())
+                            .cityCode(response.getCityCode())
+                            .rooms(response.getRooms().stream().map(r -> {
+                                RoomsBuilder roomsBuilder = RoomsBuilder.builder()
+                                        .id(r.getId())
+                                        .category(CategoryBuilder.builder().name(r.getCategory().getName()).build())
+                                        .build();
+                                return roomsBuilder;
+                            }).collect(Collectors.toSet()))
+                            .totalPrice(cvcCalculator.calculateReverseTaxByPerson(response, cvcReservationDTO))// up to date price according with person quantity
+                            .priceDetails(response.getPriceDetails())
+                            .build();
+
+                    return reservationBuilder;
+                }).collect(Collectors.toList());
+
+        reservation.setReservationBuilders(reservationBuilders);
+        kafkaProducer.sent(topic, reservation);
 
         return reservationBuilders;
-
     }
 }

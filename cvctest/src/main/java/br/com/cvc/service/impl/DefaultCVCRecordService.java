@@ -12,6 +12,7 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
@@ -32,6 +33,10 @@ public class DefaultCVCRecordService {
 
 
     @HystrixCommand(fallbackMethod = "availableFallBackHotelsByCity",
+            threadPoolProperties = {
+                    @HystrixProperty(name = "coreSize", value = "8"),
+                    @HystrixProperty(name = "maxQueueSize", value = "16")
+            },
             threadPoolKey = "availableThreadByCityKey",
             commandProperties = {
                     @HystrixProperty(name = "circuitBreaker.enabled", value = "true"),
@@ -45,6 +50,10 @@ public class DefaultCVCRecordService {
 
     @HystrixCommand(fallbackMethod = "availableFallBackHotelsByHotelId",
             threadPoolKey = "availableThreadByCityKey",
+            threadPoolProperties = {
+                    @HystrixProperty(name = "coreSize", value = "8"),
+                    @HystrixProperty(name = "maxQueueSize", value = "16")
+            },
             commandProperties = {
                     @HystrixProperty(name = "circuitBreaker.enabled", value = "true"),
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "8000")})
@@ -56,6 +65,10 @@ public class DefaultCVCRecordService {
     }
 
     private List<ReservationBuilder> availableFallBackHotelsByCity(CVCReservationDTO cvcReservationDTO) {
+        List<ReservationBuilder> reservationBuilders = cvcReactiveRecordService.getAllHotelsByIdFallback(cvcReservationDTO.getId());
+        if (!CollectionUtils.isEmpty(reservationBuilders)) {
+             return cvcConverterKafkaProducer.reverseConverter(reservationBuilders, cvcReservationDTO);
+        }
         return cvcReactiveRecordService.getAllHotelsFallback();
     }
 
