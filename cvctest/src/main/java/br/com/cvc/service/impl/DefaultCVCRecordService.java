@@ -10,6 +10,7 @@ import br.com.cvc.validator.CVCDatasValidator;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -17,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -44,8 +46,20 @@ public class DefaultCVCRecordService {
     public List<ReservationBuilder> getHotelsAvailableByCity(CVCReservationDTO cvcReservationDTO) {
         Errors errors = new BeanPropertyBindingResult(cvcReservationDTO, "cvcReservationDTO");
         cvcDatasValidator.validate(cvcReservationDTO, errors);
-        List<HotelDTO> hotelDTOS = cvcRecordService.getHotelsAvailableByCity(cvcReservationDTO.getId());
+        List<HotelDTO> hotelDTOS = this.get(cvcReservationDTO);
+
         return cvcConverterKafkaProducer.converter(hotelDTOS, cvcReservationDTO);
+    }
+
+    private List<HotelDTO> get(CVCReservationDTO cvcReservationDTO) {
+        return cvcRecordService.getHotelsAvailableByCity(cvcReservationDTO.getId()).stream()
+                .filter(h ->
+                !CollectionUtils.isEmpty(h.getRooms()))
+                .filter(h -> h.getRooms().stream()
+                .filter(p -> p.getPrice() != null).findAny().isPresent())
+                .filter(h -> StringUtils.isNotBlank(h.getId()))
+                .filter(h -> StringUtils.isNotBlank(h.getCityCode()))
+                .collect(Collectors.toList());
     }
 
     @HystrixCommand(fallbackMethod = "availableFallBackHotelsByHotelId",
